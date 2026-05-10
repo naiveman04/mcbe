@@ -1,0 +1,406 @@
+EXP 1 : CDMA Encoding and Decoding
+Python Code
+import numpy as np
+
+c1 = [1,1,1,1]
+c2 = [1,-1,1,-1]
+c3 = [1,1,-1,-1]
+c4 = [1,-1,-1,1]
+
+rc =[]
+
+print("Enter the data bits :")
+
+d1 = int(input("Enter D1 :"))
+d2 = int(input("Enter D2 :"))
+d3 = int(input("Enter D3 :"))
+d4 = int(input("Enter D4 :"))
+
+r1 = np.multiply(c1,d1)
+r2 = np.multiply(c2,d2)
+r3 = np.multiply(c3,d3)
+r4 = np.multiply(c4,d4)
+
+resultant_channel = r1 + r2 + r3 + r4
+
+print("Resultant Channel", resultant_channel)
+
+Channel = int(input("Enter the station to listen for C1=1 ,C2=2, C3=3 C4=4 : "))
+
+if Channel == 1:
+ rc = c1
+
+elif Channel == 2:
+ rc = c2
+
+elif Channel == 3:
+ rc = c3
+
+elif Channel == 4:
+ rc = c4
+
+inner_product = np.multiply(resultant_channel, rc)
+
+print("Inner Product", inner_product)
+
+res1 = sum(inner_product)
+
+data = res1 / len(inner_product)
+
+print("Data bit that was sent", data)
+Octave Code
+clc;
+clear;
+close all;
+
+% Spreading Codes
+c1 = [1 1 1 1];
+c2 = [1 -1 1 -1];
+c3 = [1 1 -1 -1];
+c4 = [1 -1 -1 1];
+
+% Input Data
+d1 = input('Enter d1 (1 or -1): ');
+d2 = input('Enter d2 (1 or -1): ');
+d3 = input('Enter d3 (1 or -1): ');
+d4 = input('Enter d4 (1 or -1): ');
+
+% Encoding
+r1 = d1 .* c1;
+r2 = d2 .* c2;
+r3 = d3 .* c3;
+r4 = d4 .* c4;
+
+% Resultant Channel
+resultant_channel = r1 + r2 + r3 + r4;
+
+disp('Resultant Channel:');
+disp(resultant_channel);
+
+% Select Channel
+channel = input('Which channel to listen (1-4): ');
+
+if channel == 1
+    rc = c1;
+elseif channel == 2
+    rc = c2;
+elseif channel == 3
+    rc = c3;
+elseif channel == 4
+    rc = c4;
+else
+    disp('Invalid Channel');
+end
+
+% Decoding
+inner_product = resultant_channel .* rc;
+
+disp('Inner Product:');
+disp(inner_product);
+
+res = sum(inner_product);
+
+data = res / length(rc);
+
+disp('Recovered Data:');
+disp(data);
+EXP 2 : GSM Frequency Reuse Simulation
+clc;
+clear;
+close all;
+
+%% ===============================
+%% GSM Frequency Reuse Simulation
+%% ===============================
+
+% Total channels from all bands
+channels = 10;
+
+% Total subscribers
+subscribers = 15000;
+
+% GSM Parameters
+R = 15;
+N = 7;
+
+%% Reuse Distance Calculation
+D = sqrt(3*N)*R;
+
+fprintf('========= GSM SYSTEM =========\n');
+fprintf('Total Subscribers = %d\n', subscribers);
+fprintf('Total Channels = %d\n', channels);
+fprintf('Cluster Size = %d\n', N);
+fprintf('Reuse Distance = %.2f km\n', D);
+
+%% Channel Allocation Per Zone
+
+zone1 = [1 2 3];
+zone2 = [4 5 6];
+zone3 = [7 8];
+zone4 = [9 10];
+
+disp(' ');
+disp('Channel Allocation');
+disp('Zone 1 -> 900 MHz -> Channels 1 2 3');
+disp('Zone 2 -> 1800 MHz -> Channels 4 5 6');
+disp('Zone 3 -> 1900 MHz -> Channels 7 8');
+disp('Zone 4 -> Reused Channels -> 9 10');
+
+%% Dynamic Traffic Simulation
+
+cells = 4;
+
+traffic = randi([2000 5000],1,cells);
+
+users_per_channel = 30;
+
+capacity = channels * users_per_channel;
+
+allocated = min(traffic, capacity);
+
+%% Call Drop Calculation
+
+drop_rate = max(0,(traffic - allocated)./traffic);
+
+avg_drop = mean(drop_rate);
+
+fprintf('\nAverage Call Drop Rate = %.4f\n', avg_drop);
+
+%% ===============================
+%% Graph 1 : Traffic Demand
+%% ===============================
+
+figure;
+bar(traffic);
+
+title('Traffic Demand in Zones');
+xlabel('Zones');
+ylabel('Users');
+
+grid on;
+
+%% ===============================
+%% Graph 2 : Allocated Users
+%% ===============================
+
+figure;
+bar(allocated);
+
+title('Allocated Users in Zones');
+xlabel('Zones');
+ylabel('Allocated Users');
+
+grid on;
+
+%% ===============================
+%% Graph 3 : Call Drop Rate
+%% ===============================
+
+figure;
+plot(drop_rate,'LineWidth',2);
+
+title('Call Drop Rate');
+xlabel('Zones');
+ylabel('Drop Rate');
+
+grid on;
+
+%% ===============================
+%% Graph 4 : Frequency Reuse Pattern
+%% ===============================
+
+figure;
+
+theta = linspace(0,2*pi,100);
+
+for i = 1:4
+
+    x = 25*cos(2*pi*i/4);
+    y = 25*sin(2*pi*i/4);
+
+    fill(x + R*cos(theta), y + R*sin(theta), rand(1,3));
+
+    hold on;
+
+    text(x,y,['Zone ',num2str(i)]);
+
+end
+
+title('GSM Frequency Reuse Strategy');
+
+axis equal;
+grid on;
+EXP 4 : BER Performance of BPSK
+Python Installation Command
+pip install numpy matplotlib scipy
+Python Code
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.special import erfc
+
+# Clear all variables / close figures equivalent
+plt.close('all')
+
+# ================= PARAMETERS =================
+
+N = int(1e6)
+
+EbN0_dB = np.arange(-3, 11)
+
+EbN0 = 10**(EbN0_dB/10)
+
+ip = np.random.rand(N) > 0.5
+
+s = 2*ip - 1
+
+n = 1/np.sqrt(2) * (np.random.randn(N) + 1j*np.random.randn(N))
+
+ber_awgn_theory = 0.5 * erfc(np.sqrt(EbN0))
+
+ber_rayleigh_theory = 0.5 * (1 - np.sqrt(EbN0 / (1 + EbN0)))
+
+ber_awgn_sim = np.zeros(len(EbN0_dB))
+ber_rayleigh_sim = np.zeros(len(EbN0_dB))
+
+for ii in range(len(EbN0_dB)):
+
+    # -------- AWGN CHANNEL --------
+
+    y_awgn = s + 10**(-EbN0_dB[ii]/20) * n
+
+    ipHat_awgn = np.real(y_awgn) > 0
+
+    ber_awgn_sim[ii] = np.sum(ip != ipHat_awgn) / N
+
+    # -------- RAYLEIGH CHANNEL --------
+
+    h = (np.random.randn(N) + 1j*np.random.randn(N)) / np.sqrt(2)
+
+    y_ray = h * s + 10**(-EbN0_dB[ii]/20) * n
+
+    y_eq = y_ray / h
+
+    ipHat_ray = np.real(y_eq) > 0
+
+    ber_rayleigh_sim[ii] = np.sum(ip != ipHat_ray) / N
+
+# ================= GRAPH 1 =================
+
+plt.figure()
+
+plt.semilogy(EbN0_dB, ber_awgn_theory, 'b-o', linewidth=1.5)
+
+plt.semilogy(EbN0_dB, ber_rayleigh_theory, 'r-s', linewidth=1.5)
+
+plt.semilogy(EbN0_dB, ber_rayleigh_sim, 'r--', linewidth=1.5)
+
+plt.grid(True)
+
+plt.legend(['AWGN Theory', 'Rayleigh Theory', 'Rayleigh Simulation'], loc='lower left')
+
+plt.xlabel('E_b/N_0 (dB)')
+
+plt.ylabel('Bit Error Rate')
+
+plt.title('BER Performance of BPSK over AWGN and Rayleigh Channels')
+
+plt.axis([-3, 10, 1e-5, 1])
+
+# ================= GRAPH 2 =================
+
+plt.figure()
+
+plt.semilogy(EbN0_dB, ber_awgn_theory, 'b.-')
+
+plt.semilogy(EbN0_dB, ber_awgn_sim, 'mx-')
+
+plt.axis([-3, 10, 10**-5, 0.5])
+
+plt.grid(True)
+
+plt.legend(['theory', 'simulation'])
+
+plt.xlabel('Eb/No, dB')
+
+plt.ylabel('Bit Error Rate')
+
+plt.title('Bit error probability curve for BPSK modulation')
+
+plt.show()
+DHCP Router Configuration
+en
+config t
+hostname r1
+interface g0/0/0
+ip address 198.168.1.1 255.255.255.0
+no shutdown
+exit
+ip dhcp pool abc
+network 198.168.1.0 255.255.255.0
+default-router 198.168.1.1
+dns-server 8.8.8.8
+exit
+exit
+Optional Command
+ip dhcp excluded-address 198.168.1.3 198.168.1.7
+Socket Programming
+Server.py
+import socket
+
+Server_ip="localhost"
+Server_host=8002
+
+FORMAT="utf-8"
+
+SS=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+
+SS.bind((Server_ip,Server_host))
+
+SS.listen(5)
+
+s1, addr=SS.accept()
+
+file_name = s1.recv(1024).decode(FORMAT)
+
+print(file_name)
+
+file=open(file_name,"w")
+
+s1.send("File name received".encode(FORMAT))
+
+data=s1.recv(1024).decode(FORMAT)
+
+print("File data received")
+
+s1.send("File data received".encode(FORMAT))
+
+file.write(data)
+
+file.close()
+Client.py
+import socket
+
+Server_ip="localhost"
+Server_host=8002
+
+FORMAT="utf-8"
+
+CS=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+
+CS.connect((Server_ip,Server_host))
+
+file = open("data/abc.txt","r")
+
+data=file.read()
+
+CS.send("abc.txt".encode(FORMAT))
+
+msg=CS.recv(1024)
+
+print(msg)
+
+CS.send(data.encode(FORMAT))
+
+msg=CS.recv(1024)
+
+print(msg)
