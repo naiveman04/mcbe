@@ -404,3 +404,459 @@ CS.send(data.encode(FORMAT))
 msg=CS.recv(1024)
 
 print(msg)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=========================================================
+EXP 1: CDMA - CODE DIVISION MULTIPLE ACCESS
+=========================================================
+
+Q1. What does CDMA stand for? Where is it used?
+A: Code Division Multiple Access. Used in 2G and 3G mobile networks.
+
+Q2. What is a spreading code / chip sequence?
+A: A unique binary sequence assigned to each user/station.
+   Used to encode the data before transmission.
+
+Q3. What are orthogonal codes? Why are they important?
+A: Two codes are orthogonal if their inner product is zero.
+   They ensure signals from different users don't interfere
+   with each other during decoding.
+
+Q4. What is the inner product? How is it calculated?
+A: Multiply two sequences element by element, then sum all results.
+   Example: [1,1,1,1] · [1,-1,1,-1] = 1-1+1-1 = 0
+
+Q5. What are the 4 spreading codes used in the experiment?
+A: c1 = [1, 1, 1, 1]
+   c2 = [1,-1, 1,-1]
+   c3 = [1, 1,-1,-1]
+   c4 = [1,-1,-1, 1]
+   These are called Walsh codes.
+
+Q6. How does encoding work?
+A: Each data bit is scalar multiplied with its spreading code.
+   r1 = d1 * c1
+   If d1=1, r1=[1,1,1,1]; if d1=-1, r1=[-1,-1,-1,-1]
+
+Q7. How is the resultant channel formed?
+A: All encoded signals are added element-wise.
+   resultant_channel = r1 + r2 + r3 + r4
+   This is what's physically on the shared channel.
+
+Q8. How does decoding work?
+A: 1. Take the resultant channel
+   2. Multiply element-wise with desired station's code
+   3. Sum all elements
+   4. Divide by N (=4, the code length)
+   5. Result = original data bit
+
+Q9. Why do we divide by N at the end?
+A: Because inner product of a code with itself = N, not 1.
+   c1 · c1 = 1+1+1+1 = 4
+   Dividing normalizes it back to the actual data bit value.
+
+Q10. What does data bit +1 vs -1 mean?
+A: In CDMA encoding: bit 1 = +1, bit 0 = -1.
+   The -1 convention makes inner product math work cleanly.
+
+Q11. What does np.multiply() do in the Python code?
+A: Element-wise multiplication of two arrays.
+   Same as .* in Octave.
+
+Q12. What happens if you decode with the wrong code?
+A: Inner product = 0 (orthogonality), so data = 0/4 = 0.
+   You cannot recover another user's data without their code.
+
+Q13. What is the conclusion of EXP 1?
+A: Multiple users can transmit simultaneously over one shared
+   channel using unique orthogonal codes. Each user's data can
+   be independently recovered - this is the core principle of CDMA.
+
+
+=========================================================
+EXP 2: GSM - GLOBAL SYSTEM FOR MOBILE COMMUNICATION
+=========================================================
+
+Q1. What does GSM stand for? What multiple access does it use?
+A: Global System for Mobile Communication.
+   Uses FDMA + TDMA combination.
+
+Q2. What are the 3 main subsystems of GSM?
+A: BSS (Base Station Subsystem),
+   NSS (Network Switching Subsystem),
+   OSS (Operation Support Subsystem)
+
+Q3. What is MS?
+A: Mobile Station = your phone + SIM card.
+
+Q4. What is BTS?
+A: Base Transceiver System = the actual antenna tower.
+   Handles radio interface to the mobile station.
+
+Q5. What is BSC?
+A: Base Station Controller = controls multiple BTSs.
+   Handles handover and RF power levels.
+
+Q6. What is MSC?
+A: Mobile Switching Centre = the brain of NSS.
+   Routes calls, performs telephony switching.
+
+Q7. Difference between HLR and VLR?
+A: HLR = permanent home database of YOUR subscriber info.
+   VLR = temporary copy of HLR when you roam to another MSC area.
+
+Q8. What is AUC?
+A: Authentication Centre - stores encryption/ciphering keys
+   to prevent unauthorized network access.
+
+Q9. What is EIR?
+A: Equipment Identity Register - checks if phone hardware
+   (IMEI) is valid or blacklisted/stolen.
+
+Q10. What is handover? Which component handles it?
+A: Switching call from one BTS to another while moving.
+   BSC handles it within same area, MSC between different BSCs.
+
+Q11. What modulation does GSM use?
+A: GMSK - Gaussian Minimum Shift Keying.
+
+Q12. How many time slots per carrier in GSM TDMA?
+A: 8 time slots per carrier, each slot = 577 microseconds.
+
+Q13. What is RACH? Who sends it?
+A: Random Access Channel. Sent by MS (uplink) to request
+   a dedicated channel when initiating a call.
+
+Q14. What are Traffic Channels (TCH)?
+A: Carry voice/data.
+   TCH/F = Full rate (22.8 Kbps)
+   TCH/H = Half rate (11.4 Kbps)
+
+Q15. Name the Broadcast Channels and their function?
+A: BCCH - broadcasts network and cell info
+   FCCH - frequency correction for mobiles
+   SCH  - synchronization, gives BSIC and frame number
+
+Q16. Name Common Control Channels?
+A: PCH  - Paging (incoming call alert) - DOWNLINK
+   RACH - Random Access (request channel) - UPLINK
+   AGCH - Access Grant (server grants request) - DOWNLINK
+
+Q17. GSM Interface table - which links what?
+A: Um   = MS to BTS (air interface)
+   Abis = BTS to BSC
+   A    = BSC to MSC
+   B    = MSC to VLR
+   C    = MSC to HLR
+   D    = VLR to HLR
+   E    = MSC to MSC (inter-network handover)
+   F    = MSC to EIR
+   H    = HLR to AUC
+
+Q18. What is the call setup flow?
+A: MS dials -> sends RACH -> BSC grants via AGCH ->
+   SDCCH used for setup + authentication ->
+   TCH allocated -> call connects.
+
+Q19. What is OSS/OMC?
+A: Operation Support Subsystem / Operation & Maintenance Centre.
+   Single point for admin and maintenance of the entire network.
+
+
+=========================================================
+EXP 4: RAYLEIGH FADING + BPSK BER
+=========================================================
+
+Q1. What is BPSK?
+A: Binary Phase Shift Keying.
+   Bit 1 = +sqrt(Eb), Bit 0 = -sqrt(Eb). Two phases, 180 apart.
+
+Q2. What is BER?
+A: Bit Error Rate = number of wrong bits / total bits sent.
+   Lower BER = better performance.
+
+Q3. What is AWGN?
+A: Additive White Gaussian Noise.
+   Additive = adds to signal.
+   White = equal power at all frequencies.
+   Gaussian = follows bell curve distribution.
+
+Q4. What is Rayleigh Fading?
+A: Random fluctuation of signal strength caused by multipath
+   propagation - signal bounces off buildings/objects and
+   multiple copies arrive at the receiver, adding up or
+   cancelling each other randomly.
+
+Q5. Difference between AWGN and Rayleigh fading?
+A: AWGN = adds random noise on top of signal (y = s + n)
+   Rayleigh = signal strength itself randomly fluctuates,
+   can drop to near zero (much more damaging than AWGN)
+
+Q6. What is Eb/No?
+A: Energy per bit / Noise power density = SNR in dB.
+   Higher Eb/No = less noise = lower BER.
+
+Q7. What is the BER formula for BPSK?
+A: Pb = (1/2) * erfc(sqrt(Eb/No))
+
+Q8. What is erfc?
+A: Complementary Error Function.
+   Gives the tail probability of the Gaussian distribution.
+   As Eb/No increases, erfc decreases, so BER decreases.
+
+Q9. What is the decision rule / threshold?
+A: If received y > 0, decide bit 1 was sent.
+   If received y <= 0, decide bit 0 was sent.
+   Threshold is 0 because +1 and -1 are symmetric around 0.
+
+Q10. BPSK code steps (MATLAB)?
+A: 1. Generate random bits: ip = rand > 0.5
+   2. Modulate: s = 2*ip - 1  (maps to +1/-1)
+   3. Add noise: y = s + scaled_noise
+   4. Decide: ipHat = real(y) > 0
+   5. Count errors: compare ip vs ipHat
+
+Q11. Why semilogy plot?
+A: BER values are very small (like 0.00001).
+   Log scale makes them visible and comparable.
+
+Q12. Why compare theoretical vs simulated BER?
+A: To validate the simulation.
+   If simulated curve matches theoretical curve,
+   the simulation code is correct.
+   Small differences exist because simulation uses finite bits.
+
+Q13. Key difference between AWGN graph and Rayleigh graph?
+A: AWGN: BER drops steeply as SNR increases (cliff shape)
+   Rayleigh: BER drops slowly, gradual slope, much higher error
+   At SNR=10dB: AWGN BER ~10^-5, Rayleigh BER ~10^-2
+   (100x more errors in Rayleigh at same SNR!)
+
+Q14. Why does Rayleigh have 3 curves?
+A: AWGN Theory = reference/benchmark line
+   Rayleigh Theory = mathematical formula prediction
+   Rayleigh Simulation = actual simulation result
+   All 3 together show: ideal vs realistic vs simulated.
+
+Q15. Conclusion of Rayleigh fading experiment?
+A: Rayleigh fading severely degrades BER compared to AWGN.
+   Same SNR gives 100x more errors in fading channel.
+   Real systems need diversity/equalization to combat fading.
+
+
+=========================================================
+EXP 5: DHCP - DYNAMIC HOST CONFIGURATION PROTOCOL
+=========================================================
+
+Q1. What is DHCP?
+A: Protocol that automatically assigns IP addresses to
+   devices on a network. No manual configuration needed.
+
+Q2. What does DORA stand for?
+A: Discover -> Offer -> Request -> Acknowledgment.
+   The 4 steps of IP address assignment.
+
+Q3. Explain each DORA step:
+A: DISCOVER - Client broadcasts "anyone have an IP for me?"
+              Source: 0.0.0.0, Dest: 255.255.255.255
+   OFFER    - Server replies "yes, take this IP"
+              Source: server IP, Dest: 255.255.255.255
+   REQUEST  - Client says "yes I'll take that IP"
+              Still broadcast so other servers know to stop
+   ACK      - Server confirms IP + subnet + gateway + lease time
+
+Q4. Why does client use 0.0.0.0 as source in Discover?
+A: Because it doesn't have an IP address yet at that point.
+
+Q5. Why is destination 255.255.255.255?
+A: Client doesn't know where DHCP server is,
+   so it broadcasts to all devices on the network.
+
+Q6. What ports does DHCP use?
+A: Client uses port 68, Server uses port 67. UDP protocol.
+
+Q7. What is a DHCP address pool?
+A: A range of IP addresses the server can assign to clients.
+
+Q8. What is a lease?
+A: IP address is given for a fixed time period, not permanently.
+   After lease expires, client must renew.
+
+Q9. What info does DHCP provide besides IP address?
+A: Subnet mask, default gateway, DNS server address.
+
+Q10. What software was used?
+A: Cisco Packet Tracer - network simulation tool.
+
+Q11. Advantage of DHCP over static IP?
+A: No manual config, no IP conflicts, easy large network
+   management, IPs get reused when devices leave network.
+
+Q12. What if two DHCP servers exist on network?
+A: Both may send offers. Client picks first one received,
+   broadcasts a Request so other servers withdraw their offer.
+
+
+=========================================================
+EXP: LCR & ADF - LEVEL CROSSING RATE & AVERAGE FADE DURATION
+=========================================================
+
+Q1. What is LCR?
+A: Level Crossing Rate - how many times per second the
+   signal strength drops below a set threshold.
+   Higher LCR = more frequent fading events.
+
+Q2. What is ADF?
+A: Average Duration of Fade - average time the signal stays
+   BELOW the threshold per crossing.
+   How long each fade event lasts.
+
+Q3. Simple analogy for LCR and ADF?
+A: LCR = how many times your call drops per minute.
+   ADF = how long each drop lasts on average.
+
+Q4. What is Selection Combining (SC)?
+A: Receiver selects the strongest signal among all antenna
+   branches and uses only that one.
+
+Q5. What is Maximum Ratio Combining (MRC)?
+A: Receiver combines ALL branch signals together,
+   weighted proportionally by their signal strength.
+
+Q6. Which is better - SC or MRC? Why?
+A: MRC is better. It uses all received copies intelligently,
+   extracts more information, gives lower BER and better
+   resistance to fading.
+
+Q7. What parameters were input in the experiment?
+A: No. of Multipaths = 100
+   No. of Samples = 1000
+   Sampling Time = 0.0010 sec
+   fc = 9.0E8 Hz
+   Velocity = 4.0 mps
+   Threshold = 0.0 dB
+   No. of Branches = 5
+   Avg SNR = 5.0 dB
+
+Q8. What does No. of Branches mean?
+A: Number of diversity antennas at the receiver.
+   More branches = better diversity = better performance.
+
+Q9. Why does threshold matter for LCR?
+A: LCR is measured relative to a threshold level.
+   Lower threshold = crossed rarely = low LCR.
+   Higher threshold = crossed more often = high LCR.
+
+Q10. Conclusion of LCR/ADF experiment?
+A: MRC outperforms SC in combating Rayleigh fading.
+   As number of diversity branches increases, LCR and ADF
+   decrease - meaning fewer and shorter fades = better quality.
+
+
+=========================================================
+EXP 8: FILE TRANSFER USING TCP (SOCKET PROGRAMMING)
+=========================================================
+
+Q1. What is a socket?
+A: An endpoint for communication between two processes,
+   either on same machine or over a network.
+
+Q2. What are the types of sockets?
+A: Stream Sockets  - use TCP, reliable, ordered delivery
+   Datagram Sockets - use UDP, no guarantee, connectionless
+   Raw Sockets      - direct access to protocol headers
+
+Q3. What is TCP? Why use it for file transfer?
+A: Transmission Control Protocol - connection-oriented,
+   reliable, guarantees ordered delivery.
+   Perfect for file transfer where data loss is unacceptable.
+
+Q4. Difference between TCP and UDP?
+A: TCP = reliable, ordered, needs connection, slower
+   UDP = fast, no guarantee, no connection, used for video/gaming
+
+Q5. Server-side steps in TCP socket programming?
+A: socket() -> bind() -> listen() -> accept() ->
+   read()/write() -> close()
+
+Q6. Client-side steps in TCP socket programming?
+A: socket() -> connect() -> write() -> read() -> close()
+
+Q7. What does socket() do?
+A: Creates a new socket - an endpoint for communication.
+
+Q8. What does bind() do?
+A: Attaches the socket to a specific IP address and port
+   number on the server machine.
+
+Q9. What does listen() do?
+A: Tells the OS the server is ready to accept connections.
+   Puts socket in passive waiting mode.
+
+Q10. What does accept() do?
+A: Blocks (waits) until a client connects.
+   Returns a new socket specifically for that client.
+
+Q11. What does connect() do (client side)?
+A: Client uses this to initiate a TCP connection to the server.
+
+Q12. What port and host were used in the code?
+A: Host = localhost (127.0.0.1 = same machine)
+   Port = 8002
+
+Q13. What is the client-server model?
+A: Server waits passively for requests.
+   Client initiates connection and sends requests.
+   Server processes and responds.
+   One server can handle multiple clients.
+
+Q14. What encoding was used in the code?
+A: utf-8 - standard text encoding for sending string data.
+
+Q15. Why close the socket at the end?
+A: To free the port and system resources.
+   Unclosed sockets cause "port already in use" errors.
+
+Q16. What OS and software was used?
+A: Open-source Linux OS with Python programming language.
+
+Q17. What is a Unix file descriptor?
+A: In Unix, every I/O operation has an integer ID.
+   A socket is also a file descriptor - you can use
+   read() and write() on it just like a file.
+
+Q18. What is Sequenced Packet Socket?
+A: Similar to Stream socket but preserves record boundaries.
+   Uses NS (Network Systems) protocol, not TCP.
